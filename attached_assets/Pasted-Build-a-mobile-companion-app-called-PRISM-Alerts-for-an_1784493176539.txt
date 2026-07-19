@@ -1,0 +1,83 @@
+Build a mobile companion app called PRISM Alerts for an existing clinical
+decision-support platform (Project Helix / PRISM), built with React Native
+and Expo. This is a companion app for a school exhibition project (Stripe
+Young Scientist & Technology Exhibition) — a real working proof-of-concept,
+not a fully certified medical device.
+
+PURPOSE
+This app has exactly one job: let a clinician see and get notified about
+active clinical alerts on their patients, from their phone. It is
+read-only — no patient creation, no editing, no document upload. Just
+alerts.
+
+BACKEND
+Connect to an existing Supabase project (I will provide the URL and anon
+key). Use @supabase/supabase-js with Expo-compatible auth storage
+(AsyncStorage). Do NOT create any new backend infra unless I explicitly
+ask — reuse what exists.
+
+Existing relevant tables/auth model (already built, do not recreate):
+- auth.users (Supabase Auth)
+- user_profiles: id (uuid, references auth.users), organization_id (uuid),
+  role ('clinician' | 'admin'), is_platform_admin (bool), is_active (bool),
+  full_name (text)
+- organizations: id, name
+- patients: id, hospital_id, name, dob, sex, mrn, diagnosis, stage,
+  family_history, etc.
+- blood_tests: id, patient_id, test, value, flag (bool), unit,
+  reference_range, recorded_at
+- reports: id, patient_id, type, date, status, document_id
+- timeline_events: id, patient_id, label, event_date, done, status,
+  clinician, notes, document_id, sort_order
+
+All tables are protected by Row Level Security scoped to
+organization_id (plus a non-exclusive read-only sharing grant via a
+patient_shared_access table) — the same Supabase auth session used on
+the desktop app should just work here with no extra client-side
+filtering needed. Sign-in should use the same email/password accounts
+already provisioned by admin invite (no self-signup — there is no
+sign-up screen in this app at all).
+
+WHAT "ALERTS" MEANS HERE
+There is currently no dedicated alerts table. Alerts are computed
+client-side on the desktop app by comparing a patient's timeline events,
+reports, and blood results against a fixed rule set (e.g. "CA19-9 not
+yet recorded", "MDT Review not completed", "Histopathology not
+available"). For this mobile app, reimplement the same rule evaluation
+against the same tables (I will share the existing completeness-engine
+logic for you to port) rather than inventing new rules. Flag clearly if
+you think this should instead be moved server-side (e.g. a Postgres
+view or Edge Function) so both apps share one source of truth — I'm
+open to that if it's cleaner.
+
+CORE SCREENS
+1. Login screen — matching PRISM branding (see below), email/password only
+2. Alerts feed — one flat list across all of the clinician's patients,
+   most urgent/most recent first, each item showing: patient name, MRN,
+   the specific missing item (e.g. "CA19-9 not recorded"), and severity
+   (high/medium as already defined in the completeness rules)
+3. Tapping an alert shows a simple read-only detail view of that patient's
+   current completeness status — no editing
+
+NOTIFICATIONS
+Implement local/in-app alert refresh first (pull-to-refresh + poll on a
+timer while the app is open). For actual push notifications (alerts
+arriving while the app is closed), that requires a server-side trigger
+(e.g. a scheduled Supabase Edge Function that recomputes alerts and
+calls Expo's push API with stored device push tokens) — flag this as a
+separate follow-up phase rather than assuming it's included by default,
+since it needs additional backend work beyond what exists today.
+
+BRANDING
+App name: PRISM Alerts. Dark theme matching the existing desktop app:
+background #0f1115, elevated surface #161922, border #262b38, primary
+text #e8e9ec, secondary text #9aa0ad, accent blue #4a7fd6, warning
+#c9903f, critical/red #cf5a5a, success green #4a9c72. I'll provide the
+PRISM logo (a blue prism icon) as the app icon and splash screen image.
+
+SCOPE GUARDRAILS
+- No patient creation/editing, no document upload/preview, no user
+  administration — this app is intentionally alerts-only
+- No offline data entry or caching of PHI beyond what's needed for the
+  current session
+- Ask me before adding any feature not listed above
