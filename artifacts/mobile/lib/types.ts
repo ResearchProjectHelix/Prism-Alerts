@@ -7,6 +7,7 @@ export interface Patient {
   diagnosis: string | null;
   stage: string | null;
   family_history: string | null;
+  organization_id: string | null;
 }
 
 export interface BloodTest {
@@ -59,6 +60,8 @@ export interface Alert {
   ruleKey: string;
   ruleLabel: string;
   priority: Priority;
+  /** True when this patient belongs to another org and was shared in. */
+  isShared: boolean;
 }
 
 export interface PatientDetail {
@@ -67,4 +70,6 @@ export interface PatientDetail {
   bloods: BloodTest[];
   reports: Report[];
   timeline: TimelineEvent[];
+  /** True when this patient belongs to another org and was shared in. */
+  isShared: boolean;
 }

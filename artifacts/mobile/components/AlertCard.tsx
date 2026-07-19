@@ -39,15 +39,25 @@ export function AlertCard({ alert, onPress }: AlertCardProps) {
           >
             {alert.patientName}
           </Text>
-          <View
-            style={[
-              styles.badge,
-              { backgroundColor: isHigh ? '#cf5a5a22' : '#c9903f22' },
-            ]}
-          >
-            <Text style={[styles.badgeText, { color: priorityColor }]}>
-              {isHigh ? 'HIGH' : 'MEDIUM'}
-            </Text>
+          <View style={styles.badges}>
+            {alert.isShared && (
+              <View style={[styles.sharedBadge, { borderColor: colors.border }]}>
+                <MaterialIcons name="swap-horiz" size={10} color={colors.mutedForeground} />
+                <Text style={[styles.sharedBadgeText, { color: colors.mutedForeground }]}>
+                  Shared
+                </Text>
+              </View>
+            )}
+            <View
+              style={[
+                styles.priorityBadge,
+                { backgroundColor: isHigh ? '#cf5a5a22' : '#c9903f22' },
+              ]}
+            >
+              <Text style={[styles.priorityBadgeText, { color: priorityColor }]}>
+                {isHigh ? 'HIGH' : 'MEDIUM'}
+              </Text>
+            </View>
           </View>
         </View>
 
@@ -108,12 +118,31 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_600SemiBold',
     flex: 1,
   },
-  badge: {
+  badges: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  sharedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 3,
+    borderRadius: 4,
+    borderWidth: 1,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  sharedBadgeText: {
+    fontSize: 10,
+    fontFamily: 'Inter_500Medium',
+    letterSpacing: 0.3,
+  },
+  priorityBadge: {
     borderRadius: 4,
     paddingHorizontal: 7,
     paddingVertical: 2,
   },
-  badgeText: {
+  priorityBadgeText: {
     fontSize: 10,
     fontFamily: 'Inter_700Bold',
     letterSpacing: 0.5,

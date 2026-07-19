@@ -10,7 +10,7 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as Haptics from 'expo-haptics';
 import { MaterialIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,6 +21,7 @@ export default function LoginScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { signIn } = useAuth();
+  const { deactivated } = useLocalSearchParams<{ deactivated?: string }>();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -86,6 +87,22 @@ export default function LoginScreen() {
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           Sign in with your PRISM account
         </Text>
+
+        {/* Deactivated-account notice */}
+        {deactivated === '1' && (
+          <View
+            style={[
+              styles.deactivatedBox,
+              { backgroundColor: '#cf5a5a18', borderColor: '#cf5a5a44' },
+            ]}
+          >
+            <MaterialIcons name="block" size={16} color={colors.destructive} />
+            <Text style={[styles.deactivatedText, { color: colors.destructive }]}>
+              Your account has been deactivated. Please contact your organisation
+              administrator.
+            </Text>
+          </View>
+        )}
 
         {/* Form */}
         <View style={[styles.form, { marginTop: 48 }]}>
@@ -313,5 +330,20 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter_400Regular',
     textAlign: 'center',
     marginTop: 'auto',
+  },
+  deactivatedBox: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    padding: 12,
+    marginTop: 16,
+  },
+  deactivatedText: {
+    fontSize: 13,
+    fontFamily: 'Inter_400Regular',
+    flex: 1,
+    lineHeight: 19,
   },
 });

@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
   FlatList,
   Platform,
@@ -19,14 +19,57 @@ import { AlertCard } from '@/components/AlertCard';
 import { SkeletonList } from '@/components/SkeletonCard';
 import type { Alert } from '@/lib/types';
 
+/** Returns a human-readable "X minutes ago" label, updating every 30 s. */
+function useTimeAgo(timestamp: number): string {
+  const [label, setLabel] = useState('');
+
+  useEffect(() => {
+    if (!timestamp) {
+      setLabel('');
+      return;
+    }
+    function update() {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 10) setLabel('Just now');
+      else if (seconds < 90) setLabel('Less than a minute ago');
+      else if (seconds < 150) setLabel('1 minute ago');
+      else setLabel(`${Math.floor(seconds / 60)} minutes ago`);
+    }
+    update();
+    const id = setInterval(update, 30_000);
+    return () => clearInterval(id);
+  }, [timestamp]);
+
+  return label;
+}
+
 export default function AlertsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { signOut } = useAuth();
-  const { data: alerts, isLoading, isError, refetch, isFetching } = useAlerts();
+  const {
+    data: alerts,
+    isLoading,
+    isError,
+    error,
+    refetch,
+    isFetching,
+    dataUpdatedAt,
+  } = useAlerts();
 
   const webTopInset = Platform.OS === 'web' ? 67 : 0;
   const webBottomInset = Platform.OS === 'web' ? 34 : 0;
+
+  const lastUpdatedLabel = useTimeAgo(dataUpdatedAt);
+
+  // Deactivated account: sign out immediately and redirect with a flag
+  useEffect(() => {
+    if (isError && (error as Error)?.message === 'ACCOUNT_DEACTIVATED') {
+      signOut().then(() => {
+        router.replace('/login?deactivated=1');
+      });
+    }
+  }, [isError, error, signOut]);
 
   const handleSignOut = useCallback(async () => {
     await signOut();
@@ -47,6 +90,8 @@ export default function AlertsScreen() {
   const patientCount = new Set(alerts?.map((a) => a.patientId)).size ?? 0;
 
   const headerHeight = 60;
+  const isDeactivated =
+    isError && (error as Error)?.message === 'ACCOUNT_DEACTIVATED';
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -83,7 +128,7 @@ export default function AlertsScreen() {
         </View>
       </View>
 
-      {/* Summary bar */}
+      {/* Summary bar — shown when there are alerts */}
       {!isLoading && !isError && alerts && alerts.length > 0 && (
         <View
           style={[
@@ -120,11 +165,24 @@ export default function AlertsScreen() {
         </View>
       )}
 
+      {/* Last updated ticker — shown after first successful load */}
+      {!isLoading && !isError && !!lastUpdatedLabel && (
+        <View style={[styles.lastUpdatedBar, { borderBottomColor: colors.border }]}>
+          <MaterialIcons name="schedule" size={11} color={colors.mutedForeground} />
+          <Text style={[styles.lastUpdatedText, { color: colors.mutedForeground }]}>
+            Last updated: {lastUpdatedLabel}
+          </Text>
+        </View>
+      )}
+
       {/* Content */}
       {isLoading ? (
         <View style={[styles.listContent, { paddingTop: 12 }]}>
           <SkeletonList />
         </View>
+      ) : isDeactivated ? (
+        // Handled by useEffect above — show nothing while redirecting
+        null
       ) : isError ? (
         <View style={styles.centeredState}>
           <MaterialIcons name="wifi-off" size={40} color={colors.mutedForeground} />
@@ -162,23 +220,30 @@ export default function AlertsScreen() {
             (alerts?.length ?? 0) === 0 && styles.emptyContainer,
           ]}
           scrollEnabled={!!(alerts && alerts.length > 0)}
-          ListEmptyComponent={
-            <View style={styles.centeredState}>
-              <MaterialIcons
-                name="check-circle"
-                size={48}
-                color={colors.success}
-              />
-              <Text style={[styles.stateTitle, { color: colors.foreground }]}>
-                No active alerts
-              </Text>
-              <Text style={[styles.stateSubtitle, { color: colors.mutedForeground }]}>
-                All patients are up to date
-              </Text>
-            </View>
-          }
+          ListEmptyComponent={<AllCaughtUp colors={colors} />}
         />
       )}
+    </View>
+  );
+}
+
+/** Deliberately styled positive empty state. */
+function AllCaughtUp({ colors }: { colors: ReturnType<typeof useColors> }) {
+  return (
+    <View style={styles.caughtUpOuter}>
+      {/* Glowing circle */}
+      <View style={styles.caughtUpIconWrap}>
+        <View style={[styles.caughtUpGlow, { backgroundColor: '#4a9c7218' }]} />
+        <View style={[styles.caughtUpCircle, { borderColor: '#4a9c7240' }]}>
+          <MaterialIcons name="check" size={44} color="#4a9c72" />
+        </View>
+      </View>
+      <Text style={[styles.caughtUpTitle, { color: colors.foreground }]}>
+        All caught up
+      </Text>
+      <Text style={[styles.caughtUpSubtitle, { color: colors.mutedForeground }]}>
+        No outstanding items across your patients
+      </Text>
     </View>
   );
 }
@@ -214,7 +279,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingVertical: 12,
     borderBottomWidth: StyleSheet.hairlineWidth,
-    gap: 0,
   },
   summaryItem: {
     alignItems: 'center',
@@ -232,6 +296,18 @@ const styles = StyleSheet.create({
   summaryDivider: {
     width: StyleSheet.hairlineWidth,
     height: 32,
+  },
+  lastUpdatedBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 5,
+    paddingVertical: 6,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+  lastUpdatedText: {
+    fontSize: 11,
+    fontFamily: 'Inter_400Regular',
   },
   listContent: {},
   emptyContainer: {
@@ -264,5 +340,44 @@ const styles = StyleSheet.create({
   retryText: {
     fontSize: 14,
     fontFamily: 'Inter_600SemiBold',
+  },
+  // All caught up empty state
+  caughtUpOuter: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 14,
+    padding: 40,
+  },
+  caughtUpIconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  caughtUpGlow: {
+    position: 'absolute',
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+  },
+  caughtUpCircle: {
+    width: 88,
+    height: 88,
+    borderRadius: 44,
+    borderWidth: 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  caughtUpTitle: {
+    fontSize: 22,
+    fontFamily: 'Inter_700Bold',
+    textAlign: 'center',
+  },
+  caughtUpSubtitle: {
+    fontSize: 14,
+    fontFamily: 'Inter_400Regular',
+    textAlign: 'center',
+    lineHeight: 21,
+    maxWidth: 260,
   },
 });

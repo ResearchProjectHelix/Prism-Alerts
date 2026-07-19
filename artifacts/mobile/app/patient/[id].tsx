@@ -89,10 +89,11 @@ export default function PatientDetailScreen() {
     );
   }
 
-  const { patient, rules } = data;
+  const { patient, rules, isShared } = data;
   const unmetRules = getUnmetRules(rules);
   const metRules = rules.filter((r) => r.met);
-  const completionPercent = Math.round((metRules.length / rules.length) * 100);
+  const completionPercent =
+    rules.length > 0 ? Math.round((metRules.length / rules.length) * 100) : 100;
 
   return (
     <View style={[styles.root, { backgroundColor: colors.background }]}>
@@ -137,9 +138,23 @@ export default function PatientDetailScreen() {
           ]}
         >
           <View style={styles.patientInfo}>
-            <Text style={[styles.patientName, { color: colors.foreground }]}>
-              {patient.name ?? 'Unknown'}
-            </Text>
+            <View style={styles.patientNameRow}>
+              <Text style={[styles.patientName, { color: colors.foreground }]}>
+                {patient.name ?? 'Unknown'}
+              </Text>
+              {isShared && (
+                <View style={[styles.sharedBadge, { borderColor: colors.border }]}>
+                  <MaterialIcons
+                    name="swap-horiz"
+                    size={11}
+                    color={colors.mutedForeground}
+                  />
+                  <Text style={[styles.sharedBadgeText, { color: colors.mutedForeground }]}>
+                    Shared
+                  </Text>
+                </View>
+              )}
+            </View>
             <Text style={[styles.patientMeta, { color: colors.mutedForeground }]}>
               MRN {patient.mrn ?? '—'}
               {patient.diagnosis ? `  ·  ${patient.diagnosis}` : ''}
@@ -149,11 +164,21 @@ export default function PatientDetailScreen() {
                 Stage {patient.stage}
               </Text>
             )}
+            {isShared && (
+              <Text style={[styles.sharedNote, { color: colors.mutedForeground }]}>
+                Read-only · shared from another hospital
+              </Text>
+            )}
           </View>
 
-          {/* Progress ring summary */}
+          {/* Completion percentage */}
           <View style={styles.progressSummary}>
-            <Text style={[styles.progressPercent, { color: completionPercent === 100 ? colors.success : colors.foreground }]}>
+            <Text
+              style={[
+                styles.progressPercent,
+                { color: completionPercent === 100 ? colors.success : colors.foreground },
+              ]}
+            >
               {completionPercent}%
             </Text>
             <Text style={[styles.progressLabel, { color: colors.mutedForeground }]}>
@@ -168,7 +193,9 @@ export default function PatientDetailScreen() {
             <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
               OUTSTANDING ({unmetRules.length})
             </Text>
-            <View style={[styles.ruleList, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View
+              style={[styles.ruleList, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
               {unmetRules.map((rule) => (
                 <CompletenessRow key={rule.key} rule={rule} />
               ))}
@@ -182,7 +209,9 @@ export default function PatientDetailScreen() {
             <Text style={[styles.sectionTitle, { color: colors.mutedForeground }]}>
               COMPLETED ({metRules.length})
             </Text>
-            <View style={[styles.ruleList, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <View
+              style={[styles.ruleList, { backgroundColor: colors.card, borderColor: colors.border }]}
+            >
               {metRules.map((rule) => (
                 <CompletenessRow key={rule.key} rule={rule} />
               ))}
@@ -234,13 +263,39 @@ const styles = StyleSheet.create({
     flex: 1,
     gap: 4,
   },
+  patientNameRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
   patientName: {
     fontSize: 20,
     fontFamily: 'Inter_700Bold',
   },
+  sharedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    borderRadius: 5,
+    borderWidth: 1,
+    paddingHorizontal: 7,
+    paddingVertical: 3,
+  },
+  sharedBadgeText: {
+    fontSize: 11,
+    fontFamily: 'Inter_500Medium',
+    letterSpacing: 0.3,
+  },
   patientMeta: {
     fontSize: 13,
     fontFamily: 'Inter_400Regular',
+  },
+  sharedNote: {
+    fontSize: 12,
+    fontFamily: 'Inter_400Regular',
+    fontStyle: 'italic',
+    marginTop: 2,
   },
   progressSummary: {
     alignItems: 'center',

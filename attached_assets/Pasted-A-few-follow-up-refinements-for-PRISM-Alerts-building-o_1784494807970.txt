@@ -1,0 +1,49 @@
+A few follow-up refinements for PRISM Alerts, building on what's already
+working:
+
+1. EMPTY STATE
+When a clinician has zero outstanding alerts across all their patients,
+replace the alerts feed with a clear positive empty state — something
+like "All caught up — no outstanding items across your patients" with
+a checkmark or similar, styled consistently with the dark theme
+(background #0f1115, success green #4a9c72 for the icon/accent). This
+should look deliberately good, not like a loading failure or empty/broken
+screen.
+
+2. SHARED-IN PATIENT INDICATOR
+The existing desktop app distinguishes a clinician's own patients from
+patients "shared in" from another hospital (read-only access via a
+patient_shared_access grant). If a shared-in patient's alerts can appear
+in this feed, each alert card and the patient detail screen should
+carry a small visual indicator (e.g. a badge reading "Shared" or similar)
+so a clinician doesn't mistake another hospital's patient for their own
+responsibility. Query the same organization_id / patient_shared_access
+relationship the desktop app already uses to determine this — do not
+invent new logic for it.
+
+3. DEACTIVATED-ACCOUNT HANDLING
+If an admin deactivates a user's account (user_profiles.is_active =
+false) while that user still has a valid session on this app, the app
+should detect this on next refresh/poll and sign the user out
+immediately with a clear message (e.g. "Your account has been
+deactivated. Please contact your organisation administrator.") rather
+than continuing to silently function until the token naturally expires.
+
+4. LAST UPDATED TIMESTAMP
+Since this app uses polling/pull-to-refresh rather than true push
+notifications, show a small "Last updated X minutes ago" timestamp at
+the top of the alerts feed, updating live, so a clinician can tell how
+current the data is at a glance.
+
+EXPLICIT GUARDRAIL — DO NOT ADD
+Do not add any "dismiss," "mark as seen," or "acknowledge" action on
+individual alerts. Every alert here reflects a real, currently-incomplete
+piece of a patient's clinical record — not a notification that can be
+cleared independently of the underlying data. The only way an alert
+should ever disappear from this feed is if the underlying gap is
+actually resolved on the desktop app (e.g. the CA19-9 result is entered,
+or the MDT Review timeline event is marked complete), which then makes
+it vanish naturally on the next refresh. A dismiss action would let a
+clinician hide a real gap in care without addressing it — do not
+implement this under any framing, even if it seems like a natural
+"notification management" feature.

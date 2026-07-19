@@ -4,11 +4,27 @@ import { buildRules, getUnmetRules } from '@/lib/completeness';
 import type { Alert } from '@/lib/types';
 import { useAuth } from '@/context/AuthContext';
 
-async function fetchAlerts(): Promise<Alert[]> {
-  // Fetch all patients (scoped by RLS to the org)
+async function fetchAlerts(userId: string): Promise<Alert[]> {
+  // 1. Check the user's profile for is_active and their org (for shared-patient detection)
+  const { data: profile, error: profileError } = await supabase
+    .from('user_profiles')
+    .select('organization_id, is_active')
+    .eq('user_id', userId)
+    .single();
+
+  if (profileError) throw profileError;
+
+  // Deactivated account — throw a sentinel that the screen will handle
+  if (profile && profile.is_active === false) {
+    throw new Error('ACCOUNT_DEACTIVATED');
+  }
+
+  const userOrgId: string | null = profile?.organization_id ?? null;
+
+  // 2. Fetch all patients visible to this user (scoped by RLS)
   const { data: patients, error: pError } = await supabase
     .from('patients')
-    .select('id, name, mrn, family_history')
+    .select('id, name, mrn, family_history, organization_id')
     .order('name');
 
   if (pError) throw pError;
@@ -16,7 +32,7 @@ async function fetchAlerts(): Promise<Alert[]> {
 
   const patientIds = patients.map((p: { id: string }) => p.id);
 
-  // Batch-fetch all related data
+  // 3. Batch-fetch all related data
   const [bloodResult, reportResult, timelineResult] = await Promise.all([
     supabase
       .from('blood_tests')
@@ -59,6 +75,14 @@ async function fetchAlerts(): Promise<Alert[]> {
 
     const unmet = getUnmetRules(rules);
 
+    // A patient is "shared in" when their org differs from the current user's org.
+    // Gracefully falls back to false when org info is unavailable.
+    const isShared = Boolean(
+      userOrgId &&
+        patient.organization_id &&
+        patient.organization_id !== userOrgId,
+    );
+
     for (const rule of unmet) {
       allAlerts.push({
         id: `${patient.id}:${rule.key}`,
@@ -68,6 +92,7 @@ async function fetchAlerts(): Promise<Alert[]> {
         ruleKey: rule.key,
         ruleLabel: rule.label,
         priority: rule.priority,
+        isShared,
       });
     }
   }
@@ -81,12 +106,12 @@ async function fetchAlerts(): Promise<Alert[]> {
 }
 
 export function useAlerts() {
-  const { session } = useAuth();
+  const { session, user } = useAuth();
 
   return useQuery({
-    queryKey: ['alerts'],
-    queryFn: fetchAlerts,
-    enabled: !!session,
+    queryKey: ['alerts', user?.id],
+    queryFn: () => fetchAlerts(user!.id),
+    enabled: !!session && !!user,
     refetchInterval: 30_000, // poll every 30 seconds while app is open
     staleTime: 20_000,
   });
