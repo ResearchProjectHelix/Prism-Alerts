@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import {
   ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -67,9 +68,11 @@ export default function LoginScreen() {
       >
         {/* Logo area */}
         <View style={styles.logoArea}>
-          <View style={[styles.prismIcon, { borderColor: colors.primary }]}>
-            <MaterialIcons name="lens" size={28} color={colors.primary} />
-          </View>
+          <Image
+            source={require('@/assets/images/icon.png')}
+            style={styles.prismIcon}
+            resizeMode="contain"
+          />
           <View style={styles.brandText}>
             <Text style={[styles.wordmarkPrism, { color: colors.foreground }]}>
               PRISM
@@ -226,12 +229,8 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   prismIcon: {
-    width: 52,
-    height: 52,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    alignItems: 'center',
-    justifyContent: 'center',
+    width: 56,
+    height: 56,
   },
   brandText: {
     gap: 0,
