@@ -14,10 +14,15 @@
       "backgroundColor": "#0f1115"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.projecthelix.mobile",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
-      "backgroundColor": "#0f1115"
+      "backgroundColor": "#0f1115",
+      "package": "com.projecthelix.mobile"
     },
     "web": {
       "favicon": "./assets/images/icon.png"
@@ -35,6 +40,17 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "4b324421-2db1-4845-bd6e-7a240d885ae1"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/4b324421-2db1-4845-bd6e-7a240d885ae1"
     }
   }
 }
