@@ -1,0 +1,48 @@
+artifacts\mobile\app\alerts.tsx:    await refetch();
+artifacts\mobile\app\alerts.tsx:            onPress={() => refetch()}
+artifacts\mobile\app\patient\[id].tsx:            onPress={() => refetch()}
+artifacts\mobile\node_modules\@supabase\supabase-js\src\lib\fetch.ts:    return (...args: Parameters<Fetch>) => customFetch(...args)
+artifacts\mobile\node_modules\@supabase\supabase-js\src\lib\fetch.ts:  return (...args: Parameters<Fetch>) => fetch(...args)
+artifacts\mobile\node_modules\@supabase\supabase-js\src\lib\fetch.ts:  const fetch = resolveFetch(customFetch)
+artifacts\mobile\node_modules\@supabase\supabase-js\src\lib\fetch.ts:    return fetch(input, { ...init, headers })
+artifacts\mobile\node_modules\@tanstack\react-query\src\useBaseQuery.ts:    willFetch(result, isRestoring)
+artifacts\mobile\node_modules\@workspace\api-client-react\node_modules\@tanstack\react-query\src\useBaseQuery.ts:    willFetch(result, isRestoring)
+artifacts\mobile\node_modules\@workspace\api-client-react\src\custom-fetch.ts:  const response = await fetch(input, { ...init, method, headers });
+artifacts\mobile\node_modules\expo\build\winter\fetch\fetch.d.ts:export declare function fetch(url: string, init?: FetchRequestInit): Promise<FetchResponse>;
+artifacts\mobile\node_modules\expo\src\async-require\asyncRequireModule.ts:      return FETCH(typeof input === 'string' ? fromBaseURL(input) : input, init);
+artifacts\mobile\node_modules\expo\src\async-require\fetchAsync.ts:  const response = await fetch(url, {
+artifacts\mobile\node_modules\expo\src\winter\fetch\fetch.ts:export async function fetch(url: string, init?: FetchRequestInit): Promise<FetchResponse> {
+artifacts\mobile\node_modules\expo-image\build\Image.d.ts:    static prefetch(urls: string | string[], cachePolicy?: ImagePrefetchOptions['cachePolicy']): Promise<boolean>;
+artifacts\mobile\node_modules\expo-image\build\Image.d.ts:    static prefetch(urls: string | string[], options?: ImagePrefetchOptions): Promise<boolean>;
+artifacts\mobile\node_modules\expo-image\build\ImageModule.web.d.ts:    prefetch(urls: string | string[], _: unknown, __: unknown): Promise<boolean>;
+artifacts\mobile\node_modules\expo-image\src\Image.tsx:  static async prefetch(
+artifacts\mobile\node_modules\expo-image\src\Image.tsx:  static async prefetch(urls: string | string[], options?: ImagePrefetchOptions): Promise<boolean>;
+artifacts\mobile\node_modules\expo-image\src\Image.tsx:  static async prefetch(
+artifacts\mobile\node_modules\expo-image\src\Image.tsx:    return ImageModule.prefetch(Array.isArray(urls) ? urls : [urls], cachePolicy, headers);
+artifacts\mobile\node_modules\expo-image\src\ImageModule.web.ts:  async prefetch(urls: string | string[], _: unknown, __: unknown): Promise<boolean> {
+artifacts\mobile\node_modules\expo-image\src\ImageModule.web.ts:    const response = await fetch(source.uri, {
+artifacts\mobile\node_modules\expo-image\src\web\hooks.ts:        const result = await fetch(source.uri, {
+artifacts\mobile\node_modules\expo-router\build\global-state\routing.d.ts:export declare function prefetch(href: Href, options?: NavigationOptions): void;
+artifacts\mobile\node_modules\expo-router\build\Prefetch.d.ts:export declare function Prefetch(props: PreloadProps): null;
+artifacts\mobile\node_modules\expo-router\build\rsc\router\fetch.d.ts:export declare function fetch(input: string, init?: FetchRequestInit): Promise<import("expo/build/winter/fetch/FetchResponse").FetchResponse>;
+artifacts\mobile\node_modules\expo-updates\e2e\fixtures\App.tsx:      await fetch(`http://localhost:${server_port}/upload-log-entries`, {
+artifacts\mobile\node_modules\react-native\Libraries\Image\Image.d.ts:  static prefetch(url: string): Promise<boolean>;
+artifacts\mobile\node_modules\react-native\src\types\globals.d.ts:    fetch(input: RequestInfo, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\react-native\src\types\globals.d.ts:  function fetch(input: RequestInfo, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\react-native\src\types\globals.d.ts:    fetch(input: RequestInfo, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\react-native\types_generated\Libraries\Image\ImageTypes.flow.d.ts:  prefetch(url: string): Promise<boolean>;
+artifacts\mobile\node_modules\react-native\types_generated\Libraries\Image\ImageTypes.flow.d.ts:  abortPrefetch(requestId: number): void;
+artifacts\mobile\node_modules\react-native\types_generated\Libraries\Image\ImageTypes.flow.d.ts:  abortPrefetch(requestId: number): void;
+artifacts\mobile\node_modules\react-native-svg\lib\typescript\css\css.d.ts:    fetch(uri: string | null): Promise<void>;
+artifacts\mobile\node_modules\react-native-svg\lib\typescript\xml.d.ts:    fetch(uri: string | null): Promise<void>;
+artifacts\mobile\node_modules\react-native-svg\src\css\css.tsx:    this.fetch(this.props.uri);
+artifacts\mobile\node_modules\react-native-svg\src\css\css.tsx:      this.fetch(uri);
+artifacts\mobile\node_modules\react-native-svg\src\css\css.tsx:  async fetch(uri: string | null) {
+artifacts\mobile\node_modules\react-native-svg\src\utils\fetchData.ts:  const response = await fetch(uri);
+artifacts\mobile\node_modules\react-native-svg\src\xml.tsx:    this.fetch(this.props.uri);
+artifacts\mobile\node_modules\react-native-svg\src\xml.tsx:      this.fetch(uri);
+artifacts\mobile\node_modules\react-native-svg\src\xml.tsx:  async fetch(uri: string | null) {
+artifacts\mobile\node_modules\typescript\lib\lib.dom.d.ts:    fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\typescript\lib\lib.dom.d.ts:declare function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\typescript\lib\lib.webworker.d.ts:    fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;
+artifacts\mobile\node_modules\typescript\lib\lib.webworker.d.ts:declare function fetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response>;

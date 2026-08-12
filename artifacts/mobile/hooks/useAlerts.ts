@@ -9,10 +9,13 @@ async function fetchAlerts(userId: string): Promise<Alert[]> {
   const { data: profile, error: profileError } = await supabase
     .from('user_profiles')
     .select('organization_id, is_active')
-    .eq('user_id', userId)
+   .eq('id', userId)
     .single();
 
-  if (profileError) throw profileError;
+  if (profileError) {
+  console.error('ALERTS profile query failed:', profileError);
+  throw profileError;
+}
 
   // Deactivated account — throw a sentinel that the screen will handle
   if (profile && profile.is_active === false) {
@@ -24,10 +27,13 @@ async function fetchAlerts(userId: string): Promise<Alert[]> {
   // 2. Fetch all patients visible to this user (scoped by RLS)
   const { data: patients, error: pError } = await supabase
     .from('patients')
-    .select('id, name, mrn, family_history, organization_id')
+   .select('id, name, mrn, family_history')
     .order('name');
 
-  if (pError) throw pError;
+ if (pError) {
+  console.error('ALERTS patients query failed:', pError);
+  throw pError;
+}
   if (!patients || patients.length === 0) return [];
 
   const patientIds = patients.map((p: { id: string }) => p.id);
@@ -49,9 +55,20 @@ async function fetchAlerts(userId: string): Promise<Alert[]> {
       .order('sort_order'),
   ]);
 
-  if (bloodResult.error) throw bloodResult.error;
-  if (reportResult.error) throw reportResult.error;
-  if (timelineResult.error) throw timelineResult.error;
+  if (bloodResult.error) {
+  console.error('ALERTS blood_tests query failed:', bloodResult.error);
+  throw bloodResult.error;
+}
+
+if (reportResult.error) {
+  console.error('ALERTS reports query failed:', reportResult.error);
+  throw reportResult.error;
+}
+
+if (timelineResult.error) {
+  console.error('ALERTS timeline_events query failed:', timelineResult.error);
+  throw timelineResult.error;
+}
 
   const allAlerts: Alert[] = [];
 
