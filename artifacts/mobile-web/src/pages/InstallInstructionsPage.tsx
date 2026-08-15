@@ -62,22 +62,16 @@ export function InstallInstructionsPage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 32 }}>
-        <div
+        <img
+          src="/icons/icon.ico"
+          alt="PRISM"
           style={{
             width: 48,
             height: 48,
             borderRadius: 10,
-            backgroundColor: colors.primary,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 18,
+            objectFit: 'cover',
           }}
-        >
-          P
-        </div>
+        />
         <div>
           <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 2 }}>PRISM</div>
           <div style={{ color: colors.primary, fontSize: 11, fontWeight: 600, letterSpacing: 2 }}>
@@ -147,7 +141,7 @@ export function InstallInstructionsPage() {
 
       {installed && (
         <p style={{ color: colors.success, fontSize: 13, marginTop: 16 }}>
-          Installed \u2014 you can continue below, or reopen from your home screen icon.
+          Installed  you can continue below, or reopen from your home screen icon.
         </p>
       )}
 

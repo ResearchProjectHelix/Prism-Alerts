@@ -46,22 +46,16 @@ export function LoginPage() {
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
-        <div
+        <img
+          src="/icons/icon.ico"
+          alt="PRISM"
           style={{
             width: 48,
             height: 48,
             borderRadius: 10,
-            backgroundColor: colors.primary,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 700,
-            fontSize: 18,
+            objectFit: 'cover',
           }}
-        >
-          P
-        </div>
+        />
         <div>
           <div style={{ color: colors.foreground, fontSize: 24, fontWeight: 700, letterSpacing: 2 }}>
             PRISM
@@ -116,7 +110,7 @@ export function LoginPage() {
               type={showPassword ? 'text' : 'password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="\u2022\u2022\u2022\u2022\u2022\u2022\u2022\u2022"
+              placeholder="••••••••"
               autoComplete="current-password"
               style={inputStyle}
             />
@@ -177,7 +171,7 @@ export function LoginPage() {
       </form>
 
       <p style={{ color: colors.mutedForeground, fontSize: 12, textAlign: 'center', marginTop: 'auto' }}>
-        No account creation \u2014 contact your administrator.
+        No account creation allowed  contact your administrator.
       </p>
     </div>
   );
