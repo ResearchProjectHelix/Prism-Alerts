@@ -59,6 +59,7 @@ export function App() {
       <Route path="/install" element={<InstallInstructionsPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/invite" element={<InviteAcceptPage />} />
+      <Route path="/auth/callback" element={<InviteAcceptPage />} />
 
       <Route
         path="/alerts"
