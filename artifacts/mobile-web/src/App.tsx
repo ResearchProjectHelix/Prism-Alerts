@@ -2,6 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './context/AuthContext';
 import { hasSeenInstallInstructions, InstallInstructionsPage } from './pages/InstallInstructionsPage';
 import { LoginPage } from './pages/LoginPage';
+import { InviteAcceptPage } from './pages/InviteAcceptPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { PatientOverviewPage } from './pages/PatientOverviewPage';
 import { PatientResultsPage } from './pages/PatientResultsPage';
@@ -57,6 +58,7 @@ export function App() {
       <Route path="/" element={<RootRedirect />} />
       <Route path="/install" element={<InstallInstructionsPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/invite" element={<InviteAcceptPage />} />
 
       <Route
         path="/alerts"
