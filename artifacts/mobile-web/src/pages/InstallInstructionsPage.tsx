@@ -75,13 +75,13 @@ export function InstallInstructionsPage() {
         <div>
           <div style={{ fontSize: 24, fontWeight: 700, letterSpacing: 2 }}>PRISM</div>
           <div style={{ color: colors.primary, fontSize: 11, fontWeight: 600, letterSpacing: 2 }}>
-            ALERTS
+            CONNECT
           </div>
         </div>
       </div>
 
       <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>
-        Install PRISM Alerts on this device
+        Install PRISM Connect on this device
       </h1>
       <p style={{ color: colors.mutedForeground, fontSize: 14, marginBottom: 28, lineHeight: 1.5 }}>
         Installing gives you a proper app icon, full-screen view, and lets you receive
@@ -95,7 +95,7 @@ export function InstallInstructionsPage() {
             'Tap the Share icon at the bottom of the screen (the square with an arrow).',
             'Scroll down and tap "Add to Home Screen".',
             'Tap "Add" in the top right.',
-            'Open PRISM Alerts from your home screen icon \u2014 notifications only work once installed this way.',
+            'Open PRISM Connect from your home screen icon \u2014 notifications only work once installed this way.',
           ]}
         />
       )}
@@ -125,7 +125,7 @@ export function InstallInstructionsPage() {
           steps={[
             'Look for the install icon in the address bar (a monitor with a down arrow).',
             'Click it, then click "Install".',
-            'Not required to use PRISM Alerts, but recommended for the best experience.',
+            'Not required to use PRISM Connect, but recommended for the best experience.',
           ]}
         />
       )}

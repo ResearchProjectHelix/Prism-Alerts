@@ -7,6 +7,7 @@ import { PatientOverviewPage } from './pages/PatientOverviewPage';
 import { PatientResultsPage } from './pages/PatientResultsPage';
 import { PatientScansPage } from './pages/PatientScansPage';
 import { SettingsPage } from './pages/SettingsPage';
+import { ConnectPage } from './pages/ConnectPage';
 import { colors } from './lib/colors';
 import { isRunningStandalone } from './lib/pwa';
 
@@ -70,6 +71,14 @@ export function App() {
         element={
           <RequireAuth>
             <SettingsPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/connect"
+        element={
+          <RequireAuth>
+            <ConnectPage />
           </RequireAuth>
         }
       />

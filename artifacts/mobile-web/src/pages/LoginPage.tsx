@@ -61,13 +61,13 @@ export function LoginPage() {
             PRISM
           </div>
           <div style={{ color: colors.primary, fontSize: 11, fontWeight: 600, letterSpacing: 2 }}>
-            ALERTS
+            CONNECT
           </div>
         </div>
       </div>
 
       <p style={{ color: colors.mutedForeground, fontSize: 14, marginTop: 8 }}>
-        Sign in with your PRISM account
+        Sign in to PRISM Connect with your PRISM account
       </p>
 
       {deactivated && (

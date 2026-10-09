@@ -1,5 +1,5 @@
 /**
- * PRISM Alerts design tokens — dark clinical theme.
+ * PRISM Connect design tokens — dark clinical theme.
  * Ported unchanged from the Expo app's constants/colors.ts.
  */
 export const colors = {

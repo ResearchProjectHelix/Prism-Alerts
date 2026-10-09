@@ -32,6 +32,9 @@ export function AlertsPage() {
           </div>
         </div>
         <div style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => navigate('/connect')} style={iconButtonStyle}>
+            Connect desktop
+          </button>
           <button onClick={() => navigate('/settings')} style={iconButtonStyle}>
             Settings
           </button>

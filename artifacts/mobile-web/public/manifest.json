@@ -1,7 +1,7 @@
 {
-  "name": "PRISM Alerts",
-  "short_name": "PRISM Alerts",
-  "description": "Read-only clinical alerts, results, and scans companion to PRISM.",
+  "name": "PRISM Connect",
+  "short_name": "PRISM Connect",
+  "description": "Secure staff sign-in with clinical alerts, results, and scans from PRISM.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

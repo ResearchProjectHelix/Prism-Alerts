@@ -1,4 +1,4 @@
-// PRISM Alerts service worker.
+// PRISM Connect service worker.
 // Deliberately minimal: this app has no offline-caching requirements
 // (it's a read-only view of live clinical data, and stale cached results
 // would be actively dangerous to show a clinician). Its only job is to
@@ -13,7 +13,7 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('push', (event) => {
-  let payload = { title: 'PRISM Alerts', body: 'New activity on a patient record.', url: '/alerts' };
+  let payload = { title: 'PRISM Connect', body: 'New activity on a patient record.', url: '/alerts' };
 
   if (event.data) {
     try {
