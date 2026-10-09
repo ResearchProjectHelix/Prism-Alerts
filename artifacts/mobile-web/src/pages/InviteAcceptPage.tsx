@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../lib/colors';
 import { supabase } from '../lib/supabase';
+import { openPrismDesktop } from '../lib/electron';
 
-type PageState = 'loading' | 'password_form' | 'complete' | 'error';
+type PageState = 'loading' | 'password_form' | 'complete' | 'electron_error' | 'error';
 type LinkMode = 'invite' | 'recovery';
 
 const SESSION_TIMEOUT_MS = 10_000;
@@ -48,6 +49,7 @@ export function InviteAcceptPage() {
   const [error, setError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOpeningDesktop, setIsOpeningDesktop] = useState(false);
 
   useEffect(() => {
     if (isLoading || callbackHandled.current) return;
@@ -166,6 +168,17 @@ export function InviteAcceptPage() {
     setPageState('complete');
   };
 
+  const handleOpenDesktop = async () => {
+    setIsOpeningDesktop(true);
+    setError(null);
+    const result = await openPrismDesktop();
+    setIsOpeningDesktop(false);
+    if (result === 'not_installed' || result === 'failed') {
+      setError('PRISM Desktop could not be opened. Make sure it is installed, then try again.');
+      setPageState('electron_error');
+    }
+  };
+
   const heading = linkMode === 'recovery' ? 'Reset your password' : 'Create your account';
   const subtitle = linkMode === 'recovery'
     ? 'Choose a new password for your PRISM account.'
@@ -230,8 +243,22 @@ export function InviteAcceptPage() {
           <>
             <h1 style={headingStyle}>{linkMode === 'recovery' ? 'Password updated' : 'Account ready'}</h1>
             <p style={subtitleStyle}>{linkMode === 'recovery' ? 'Your PRISM password has been updated.' : 'Your PRISM account is set up and ready to use.'}</p>
-            <button type="button" onClick={() => navigate('/alerts', { replace: true })} style={primaryButtonStyle}>Continue to PRISM Connect</button>
-            <p style={{ ...subtitleStyle, marginTop: 14, marginBottom: 0 }}>You can also sign in to PRISM Desktop with the password you just created.</p>
+            <button type="button" disabled={isOpeningDesktop} onClick={() => void handleOpenDesktop()} style={primaryButtonStyle}>
+              {isOpeningDesktop ? 'Opening PRISM…' : 'Open PRISM Desktop'}
+            </button>
+            <button type="button" onClick={() => navigate('/alerts', { replace: true })} style={secondaryButtonStyle}>Continue to PRISM Connect</button>
+            <p style={{ ...subtitleStyle, marginTop: 14, marginBottom: 0 }}>Sign in to PRISM Desktop with the password you just created.</p>
+          </>
+        )}
+
+        {pageState === 'electron_error' && (
+          <>
+            <h1 style={headingStyle}>Open PRISM Desktop</h1>
+            <p style={subtitleStyle}>{error}</p>
+            <button type="button" disabled={isOpeningDesktop} onClick={() => void handleOpenDesktop()} style={primaryButtonStyle}>
+              {isOpeningDesktop ? 'Opening PRISM…' : 'Try again'}
+            </button>
+            <button type="button" onClick={() => navigate('/alerts', { replace: true })} style={secondaryButtonStyle}>Continue to PRISM Connect</button>
           </>
         )}
       </section>
