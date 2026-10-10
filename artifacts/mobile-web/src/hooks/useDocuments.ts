@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { IMAGING_CATEGORIES, type ClinicalDocument } from '../lib/types';
+import type { ClinicalDocument } from '../lib/types';
 
 const BUCKET = 'clinical-documents';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 5; // 5 minutes — generated fresh each load, never stored
@@ -21,7 +21,7 @@ async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
     .from('documents')
     .select('*')
     .eq('patient_id', patientId)
-    .in('category', IMAGING_CATEGORIES as unknown as string[])
+    .eq('category', 'Imaging')
     .order('uploaded_at', { ascending: false });
 
   if (error) throw error;
@@ -49,5 +49,6 @@ export function useDocuments(patientId: string) {
     queryFn: () => fetchScans(patientId),
     enabled: !!patientId,
     staleTime: 20_000,
+    refetchInterval: 30_000,
   });
 }
