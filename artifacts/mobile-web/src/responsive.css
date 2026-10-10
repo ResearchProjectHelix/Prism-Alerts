@@ -1,0 +1,74 @@
+html,
+body,
+#root {
+  width: 100%;
+  height: auto;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+#root > * {
+  width: 100%;
+  max-width: min(100%, 56rem);
+  min-height: 100dvh;
+  margin-inline: auto;
+}
+
+.connect-login-screen {
+  width: 100%;
+  max-width: min(100%, 34rem);
+  padding-top: clamp(1.5rem, 7vh, 3.75rem) !important;
+  padding-right: clamp(1.125rem, 6vw, 2rem) !important;
+  padding-bottom: max(1.5rem, env(safe-area-inset-bottom)) !important;
+  padding-left: clamp(1.125rem, 6vw, 2rem) !important;
+}
+
+.connect-alert-header {
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.connect-alert-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px !important;
+}
+
+@media (max-width: 420px) {
+  .connect-alert-header {
+    padding-top: max(14px, env(safe-area-inset-top)) !important;
+    padding-right: 16px !important;
+    padding-left: 16px !important;
+  }
+
+  .connect-alert-actions {
+    display: grid !important;
+    width: 100%;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .connect-alert-actions > button {
+    min-width: 0;
+    padding-right: 4px !important;
+    padding-left: 4px !important;
+    font-size: 11px !important;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 720px) {
+  #root > * {
+    border-right: 1px solid var(--border);
+    border-left: 1px solid var(--border);
+  }
+}

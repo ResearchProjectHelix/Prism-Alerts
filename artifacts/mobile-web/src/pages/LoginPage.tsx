@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { colors } from '../lib/colors';
 
@@ -7,6 +7,11 @@ export function LoginPage() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const returnLocation = (location.state as { from?: { pathname?: string; search?: string; hash?: string } } | null)?.from;
+  const returnPath = returnLocation?.pathname?.startsWith('/') && !returnLocation.pathname.startsWith('//')
+    ? `${returnLocation.pathname}${returnLocation.search ?? ''}${returnLocation.hash ?? ''}`
+    : '/alerts';
   const deactivated = searchParams.get('deactivated') === '1';
 
   const [email, setEmail] = useState('');
@@ -32,11 +37,12 @@ export function LoginPage() {
       return;
     }
 
-    navigate('/alerts', { replace: true });
+    navigate(returnPath, { replace: true });
   };
 
   return (
     <div
+      className="connect-login-screen"
       style={{
         minHeight: '100dvh',
         backgroundColor: colors.background,

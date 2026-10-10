@@ -104,3 +104,26 @@ export async function unsubscribeFromPush(): Promise<{ error: string | null }> {
     return { error: err instanceof Error ? err.message : 'Unknown error unsubscribing.' };
   }
 }
+/** Checks that this browser has a saved push endpoint for the current user. */
+export async function hasActivePushSubscription(userId: string): Promise<boolean> {
+  if (!userId || !isPushSupported() || Notification.permission !== 'granted') {
+    return false;
+  }
+
+  try {
+    const registration = await navigator.serviceWorker.getRegistration('/');
+    const subscription = await registration?.pushManager.getSubscription();
+    if (!subscription) return false;
+
+    const { data, error } = await supabase
+      .from('push_subscriptions')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('endpoint', subscription.endpoint)
+      .maybeSingle();
+
+    return !error && Boolean(data);
+  } catch {
+    return false;
+  }
+}
