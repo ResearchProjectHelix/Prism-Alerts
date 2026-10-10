@@ -17,6 +17,7 @@ export function AlertsPage() {
   return (
     <div style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
       <header
+        className="connect-alert-header"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -31,7 +32,7 @@ export function AlertsPage() {
             {alerts ? `${alerts.length} open item${alerts.length === 1 ? '' : 's'}` : ' '}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="connect-alert-actions" style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => navigate('/connect')} style={iconButtonStyle}>
             Connect desktop
           </button>
