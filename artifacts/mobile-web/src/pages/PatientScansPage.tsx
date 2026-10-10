@@ -60,7 +60,7 @@ export function PatientScansPage() {
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{scan.name}</div>
                 <div style={{ fontSize: 12, color: colors.mutedForeground, marginTop: 2 }}>
-                  {scan.category}
+                  {scan.type || scan.category}
                   {scan.doc_date ? ` \u00b7 ${scan.doc_date}` : ''}
                   {scan.clinician ? ` \u00b7 ${scan.clinician}` : ''}
                 </div>
