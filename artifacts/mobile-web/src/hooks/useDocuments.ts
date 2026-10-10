@@ -10,13 +10,8 @@ export interface ScanWithUrl extends ClinicalDocument {
 }
 
 async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
-  // Matches the imaging categories enforced by the "radiologists can insert
-  // imaging documents" RLS policy on `documents` (category IN ('CT','MRI',
-  // 'X-Ray','PET','Ultrasound')). NOTE: this differs from the DocumentCategory
-  // enum in the desktop app's models/document.js, which defines `category` as
-  // a broader Imaging/Pathology/Laboratory/etc value and puts the modality
-  // (CT/MRI/PET) on a separate `type` field instead — see the flag raised
-  // alongside this file about that mismatch.
+  // PRISM Desktop stores radiology uploads with category='Imaging' and
+  // the specific modality (CT, MRI, PET, etc.) in the `type` column.
   const { data, error } = await supabase
     .from('documents')
     .select('*')
