@@ -54,5 +54,6 @@ export function useBloodResults(patientId: string) {
     queryFn: () => fetchBloodResults(patientId),
     enabled: !!patientId,
     staleTime: 20_000,
+    refetchInterval: 30_000,
   });
 }
