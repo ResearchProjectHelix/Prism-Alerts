@@ -32,6 +32,7 @@ export function AlertsPage() {
           </div>
         </div>
         <div className="connect-header-actions" style={{ display: 'flex', gap: 12 }}>
+          <button onClick={() => navigate('/patients')} style={iconButtonStyle}>Patients</button>
           <button onClick={() => navigate('/connect')} style={iconButtonStyle}>
             Connect desktop
           </button>

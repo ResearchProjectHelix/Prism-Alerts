@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { hasSeenInstallInstructions, InstallInstructionsPage } from './pages/InstallInstructionsPage';
 import { LoginPage } from './pages/LoginPage';
 import { InviteAcceptPage } from './pages/InviteAcceptPage';
+import { PatientsPage } from './pages/PatientsPage';
 import { AlertsPage } from './pages/AlertsPage';
 import { PatientOverviewPage } from './pages/PatientOverviewPage';
 import { PatientResultsPage } from './pages/PatientResultsPage';
@@ -66,6 +67,7 @@ export function App() {
       <Route path="/invite" element={<InviteAcceptPage />} />
       <Route path="/auth/callback" element={<InviteAcceptPage />} />
 
+      <Route path="/patients" element={<RequireAuth><PatientsPage /></RequireAuth>} />
       <Route
         path="/alerts"
         element={
