@@ -23,7 +23,12 @@ async function fetchPatientDetail(patientId: string, userId: string): Promise<Pa
       supabase.from('timeline_events').select('*').eq('patient_id', patientId).order('sort_order'),
     ]);
 
+  // A failed query is not evidence that clinical information is missing.
+  if (profileResult.error) throw profileResult.error;
   if (patientResult.error) throw patientResult.error;
+  if (bloodsResult.error) throw bloodsResult.error;
+  if (reportsResult.error) throw reportsResult.error;
+  if (timelineResult.error) throw timelineResult.error;
 
   const patient = patientResult.data;
   const bloods = bloodsResult.data ?? [];
@@ -56,3 +61,4 @@ export function usePatientDetail(patientId: string) {
     staleTime: 20_000,
   });
 }
+
