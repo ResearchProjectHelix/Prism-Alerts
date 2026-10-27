@@ -9,8 +9,8 @@ export function SettingsPage() {
     usePushSubscription();
 
   return (
-    <div style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
-      <header style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
+    <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
+      <header className="connect-header" style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
         <button
           onClick={() => navigate('/alerts')}
           style={{ background: 'none', border: 'none', color: colors.primary, fontSize: 13, padding: 0, cursor: 'pointer' }}

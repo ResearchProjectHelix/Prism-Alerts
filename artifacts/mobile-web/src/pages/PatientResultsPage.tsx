@@ -11,8 +11,8 @@ export function PatientResultsPage() {
   const [expanded, setExpanded] = useState<string | null>(null);
 
   return (
-    <div style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
-      <header style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
+    <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
+      <header className="connect-header" style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
         <button
           onClick={() => navigate(`/patient/${id}`)}
           style={{ background: 'none', border: 'none', color: colors.primary, fontSize: 13, padding: 0, cursor: 'pointer' }}
@@ -37,7 +37,7 @@ export function PatientResultsPage() {
       )}
 
       {groups && groups.length > 0 && (
-        <div style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <div className="connect-card-grid" style={{ padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
           {groups.map((group) => {
             const isExpanded = expanded === group.testName;
             return (
@@ -51,6 +51,8 @@ export function PatientResultsPage() {
                 }}
               >
                 <button
+                  className="connect-result-row"
+                  aria-expanded={isExpanded}
                   onClick={() => setExpanded(isExpanded ? null : group.testName)}
                   style={{
                     width: '100%',

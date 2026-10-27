@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
-import { IMAGING_CATEGORIES, type ClinicalDocument } from '../lib/types';
+import { type ClinicalDocument } from '../lib/types';
 
 const BUCKET = 'clinical-documents';
 const SIGNED_URL_EXPIRY_SECONDS = 60 * 5; // 5 minutes — generated fresh each load, never stored
@@ -10,18 +10,12 @@ export interface ScanWithUrl extends ClinicalDocument {
 }
 
 async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
-  // Matches the imaging categories enforced by the "radiologists can insert
-  // imaging documents" RLS policy on `documents` (category IN ('CT','MRI',
-  // 'X-Ray','PET','Ultrasound')). NOTE: this differs from the DocumentCategory
-  // enum in the desktop app's models/document.js, which defines `category` as
-  // a broader Imaging/Pathology/Laboratory/etc value and puts the modality
-  // (CT/MRI/PET) on a separate `type` field instead — see the flag raised
-  // alongside this file about that mismatch.
+  // Desktop stores modality in type; category identifies all imaging documents.
   const { data, error } = await supabase
     .from('documents')
     .select('*')
     .eq('patient_id', patientId)
-    .in('category', IMAGING_CATEGORIES as unknown as string[])
+    .eq('category', 'Imaging')
     .order('uploaded_at', { ascending: false });
 
   if (error) throw error;

@@ -15,8 +15,8 @@ export function AlertsPage() {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
-      <header
+    <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
+      <header className="connect-header"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
@@ -31,7 +31,7 @@ export function AlertsPage() {
             {alerts ? `${alerts.length} open item${alerts.length === 1 ? '' : 's'}` : ' '}
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 12 }}>
+        <div className="connect-header-actions" style={{ display: 'flex', gap: 12 }}>
           <button onClick={() => navigate('/connect')} style={iconButtonStyle}>
             Connect desktop
           </button>
@@ -53,9 +53,10 @@ export function AlertsPage() {
       )}
 
       {alerts && alerts.length > 0 && (
-        <div>
+        <div className="connect-alert-grid">
           {alerts.map((alert) => (
             <button
+              className="connect-alert-row"
               key={alert.id}
               onClick={() => navigate(`/patient/${alert.patientId}`)}
               style={{
@@ -84,7 +85,7 @@ export function AlertsPage() {
                   backgroundColor: alert.priority === 'high' ? colors.destructive : colors.warning,
                 }}
               />
-              <div style={{ flex: 1 }}>
+              <div style={{ flex: 1, minWidth: 0, overflowWrap: 'anywhere' }}>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>
                   {alert.patientName}{' '}
                   <span style={{ color: colors.mutedForeground, fontWeight: 400 }}>{alert.mrn}</span>

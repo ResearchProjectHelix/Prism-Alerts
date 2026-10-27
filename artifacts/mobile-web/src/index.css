@@ -607,3 +607,42 @@ img {
   justify-content: center;
   overflow: auto;
 }
+
+/* Device-proportional Connect pages; preserve the existing colour system. */
+.connect-page {
+  width: 100%;
+  max-width: 1120px;
+  margin-inline: auto;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow-wrap: anywhere;
+}
+.connect-header { gap: 16px; padding-top: max(18px, env(safe-area-inset-top, 0px)) !important; }
+.connect-header-actions { flex-wrap: wrap; justify-content: flex-end; }
+.connect-header button { min-height: 44px; }
+.connect-header-actions button { min-width: 44px; }
+.connect-alert-row { min-height: 80px; }
+.connect-result-row, .connect-scan-row { gap: 16px; flex-wrap: wrap; }
+.connect-result-row > div, .connect-scan-row > div { min-width: 0; overflow-wrap: anywhere; }
+.connect-scan-row > div { flex: 1 1 180px; }
+.connect-scan-row > span { flex-shrink: 0; }
+.connect-card-grid { align-items: stretch; }
+.tabs, .tab { min-width: 0; }
+.tab { min-height: 44px; }
+@media (max-width: 479px) {
+  .connect-header { flex-wrap: wrap; }
+  .connect-header-actions { width: 100%; justify-content: flex-start; gap: 8px !important; }
+  .connect-header-actions button { flex: 1 1 auto; }
+  .connect-result-row > div { flex: 1 1 120px; }
+  .input { font-size: 16px; }
+}
+@media (min-width: 768px) {
+  .connect-page { border-inline: 1px solid var(--border); }
+  .connect-alert-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .connect-alert-row:nth-child(odd) { border-right: 1px solid var(--border) !important; }
+  .connect-card-grid { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px !important; padding: 24px !important; }
+  .connect-card-grid > * { min-width: 0; }
+  .connect-overview { max-width: 800px; margin-inline: auto; padding-block: 12px; }
+}
+@media (min-width: 1200px) {
+  .connect-page { box-shadow: 0 0 48px rgba(0, 0, 0, .16); }
+}

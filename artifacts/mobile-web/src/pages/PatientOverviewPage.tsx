@@ -10,8 +10,8 @@ export function PatientOverviewPage() {
   const { data, isLoading, error } = usePatientDetail(id ?? '');
 
   return (
-    <div style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
-      <header style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
+    <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
+      <header className="connect-header" style={{ padding: '18px 20px', borderBottom: `1px solid ${colors.border}` }}>
         <button
           onClick={() => navigate('/alerts')}
           style={{ background: 'none', border: 'none', color: colors.primary, fontSize: 13, padding: 0, cursor: 'pointer' }}
@@ -38,7 +38,7 @@ export function PatientOverviewPage() {
       )}
 
       {data && (
-        <div>
+        <div className="connect-overview">
           <div style={{ padding: '16px 20px 4px', fontSize: 12, fontWeight: 600, letterSpacing: 0.5, color: colors.mutedForeground, textTransform: 'uppercase' }}>
             Pathway Completeness
           </div>
