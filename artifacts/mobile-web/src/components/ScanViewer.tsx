@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { ScanWithUrl } from '../hooks/useDocuments';
 import { colors } from '../lib/colors';
 
@@ -10,8 +11,16 @@ function isImage(doc: ScanWithUrl): boolean {
 }
 
 export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => void }) {
+  const closeButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    closeButton.current?.focus();
+    const handleKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); onClose(); } };
+    document.addEventListener('keydown', handleKey);
+    return () => { document.removeEventListener('keydown', handleKey); previousFocus?.focus(); };
+  }, [onClose]);
   return (
-    <div
+    <div role="dialog" aria-modal="true" aria-label={doc.name}
       style={{
         position: 'fixed',
         inset: 0,
@@ -32,7 +41,7 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        <div>
+        <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
           <div style={{ color: colors.foreground, fontWeight: 600, fontSize: 14 }}>
             {doc.name}
           </div>
@@ -41,6 +50,7 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
           </div>
         </div>
         <button
+          ref={closeButton}
           onClick={onClose}
           style={{
             background: 'none',
@@ -49,6 +59,7 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
             fontSize: 22,
             cursor: 'pointer',
             lineHeight: 1,
+            minWidth: 44, minHeight: 44, flexShrink: 0,
           }}
           aria-label="Close"
         >
@@ -57,12 +68,14 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
       </div>
 
       <div
-        style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        style={{ flex: 1, minHeight: 0, overflow: 'auto', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         onClick={(e) => e.stopPropagation()}
       >
         {!doc.fileUrl && (
           <span style={{ color: colors.mutedForeground }}>
-            This file couldn't be loaded (the signed link may have expired \u2014 close and reopen).
+            {doc.fileState === 'no_file'
+              ? 'This record has no file attached. It does not provide a viewable scan.'
+              : 'The file is currently unavailable. Close this viewer and use Refresh files to request a new link.'}
           </span>
         )}
         {doc.fileUrl && isPdf(doc) && (

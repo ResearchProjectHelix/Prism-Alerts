@@ -7,6 +7,7 @@ const SIGNED_URL_EXPIRY_SECONDS = 60 * 5; // 5 minutes — generated fresh each 
 
 export interface ScanWithUrl extends ClinicalDocument {
   fileUrl: string | null;
+  fileState: 'ready' | 'no_file' | 'unavailable';
 }
 
 async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
@@ -30,7 +31,7 @@ async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
           .createSignedUrl(doc.file_path, SIGNED_URL_EXPIRY_SECONDS);
         if (!signedError) fileUrl = signedData.signedUrl;
       }
-      return { ...doc, fileUrl };
+      return { ...doc, fileUrl, fileState: fileUrl ? 'ready' as const : doc.file_path ? 'unavailable' as const : 'no_file' as const };
     }),
   );
 

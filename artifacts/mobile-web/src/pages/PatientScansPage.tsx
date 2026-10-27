@@ -8,7 +8,7 @@ import { colors } from '../lib/colors';
 export function PatientScansPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: scans, isLoading, error } = useDocuments(id ?? '');
+  const { data: scans, isLoading, isFetching, error, refetch } = useDocuments(id ?? '');
   const [viewing, setViewing] = useState<ScanWithUrl | null>(null);
 
   return (
@@ -20,7 +20,10 @@ export function PatientScansPage() {
         >
           &larr; Overview
         </button>
-        <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Scans</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Scans</div>
+          <button className="btn btn-ghost" disabled={isFetching} onClick={() => void refetch()} style={{ width: 'auto', paddingInline: 14 }}>Refresh files</button>
+        </div>
       </header>
 
       {id && <PatientTabs patientId={id} />}
@@ -61,12 +64,14 @@ export function PatientScansPage() {
               <div>
                 <div style={{ fontSize: 14, fontWeight: 600 }}>{scan.name}</div>
                 <div style={{ fontSize: 12, color: colors.mutedForeground, marginTop: 2 }}>
-                  {scan.category}
+                  {scan.type || scan.category}
                   {scan.doc_date ? ` \u00b7 ${scan.doc_date}` : ''}
                   {scan.clinician ? ` \u00b7 ${scan.clinician}` : ''}
                 </div>
               </div>
-              <span style={{ color: colors.primary, fontSize: 13 }}>View &rarr;</span>
+              <span style={{ color: scan.fileState === 'ready' ? colors.primary : colors.mutedForeground, fontSize: 13, flexShrink: 0 }}>
+                {scan.fileState === 'ready' ? 'View →' : scan.fileState === 'no_file' ? 'No file attached' : 'File unavailable'}
+              </span>
             </button>
           ))}
         </div>
