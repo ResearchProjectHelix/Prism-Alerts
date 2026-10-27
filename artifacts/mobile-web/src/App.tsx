@@ -11,6 +11,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { ConnectPage } from './pages/ConnectPage';
 import { colors } from './lib/colors';
 import { isRunningStandalone } from './lib/pwa';
+import { getAuthLinkDestination } from './lib/authLink';
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { session, isLoading } = useAuth();
@@ -53,6 +54,10 @@ function RootRedirect() {
 }
 
 export function App() {
+  const location = useLocation();
+  const authDestination = getAuthLinkDestination(location);
+  if (authDestination) return <Navigate to={authDestination} replace />;
+
   return (
     <Routes>
       <Route path="/" element={<RootRedirect />} />
