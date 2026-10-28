@@ -5,8 +5,10 @@ import { colors } from '../lib/colors';
 
 export function SettingsPage() {
   const navigate = useNavigate();
-  const { isSupported, permission, isSubscribed, isSubscribing, error, subscribe, unsubscribe } =
+  const { isSupported, permission, isSubscribed, hasBrowserSubscription, isChecking, isSubscribing, registrationError, error, subscribe, unsubscribe, refresh } =
     usePushSubscription();
+  const needsReset = hasBrowserSubscription && !isSubscribed;
+  const busy = isChecking || isSubscribing;
 
   return (
     <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
@@ -33,10 +35,12 @@ export function SettingsPage() {
           <p style={{ fontSize: 13, color: colors.mutedForeground, lineHeight: 1.5, marginBottom: 14 }}>
             {!isSupported &&
               "This browser doesn't support push notifications. If you're on iPhone, install the app to your home screen first."}
-            {isSupported && !isSubscribed &&
-              'Get notified on this device when a new lab result or scan is uploaded for one of your patients.'}
+            {isSupported && !isSubscribed && !needsReset &&
+              'Register this browser for notifications for your account.'}
+            {isSupported && needsReset &&
+              'This browser has a subscription that is not registered for this account. Reset it before enabling notifications for this account.'}
             {isSupported && isSubscribed &&
-              "You'll be notified on this device when new results or scans are uploaded."}
+              'This browser is registered for your account. Push delivery is still being validated for this research system.'}
           </p>
 
           {error && (
@@ -45,28 +49,28 @@ export function SettingsPage() {
 
           {isSupported && (
             <button
-              onClick={isSubscribed ? unsubscribe : subscribe}
-              disabled={isSubscribing}
+              onClick={registrationError ? () => void refresh() : isSubscribed || needsReset ? unsubscribe : subscribe}
+              disabled={busy}
               style={{
                 borderRadius: 8,
-                height: 42,
+                height: 44,
                 border: isSubscribed ? `1px solid ${colors.border}` : 'none',
                 backgroundColor: isSubscribed ? 'transparent' : colors.primary,
                 color: isSubscribed ? colors.mutedForeground : '#fff',
                 fontSize: 13,
                 fontWeight: 600,
                 padding: '0 16px',
-                cursor: isSubscribing ? 'default' : 'pointer',
-                opacity: isSubscribing ? 0.7 : 1,
+                cursor: busy ? 'default' : 'pointer',
+                opacity: busy ? 0.7 : 1,
               }}
             >
-              {isSubscribing ? 'Please wait\u2026' : isSubscribed ? 'Turn Off Notifications' : 'Enable Notifications'}
+              {busy ? 'Please wait…' : registrationError ? 'Check registration again' : needsReset ? 'Reset browser registration' : isSubscribed ? 'Turn Off Notifications' : 'Enable Notifications'}
             </button>
           )}
 
           {permission === 'denied' && (
             <p style={{ fontSize: 12, color: colors.warning, marginTop: 10 }}>
-              Notifications are blocked for this site in your browser settings \u2014 you'll need to
+              Notifications are blocked for this site in your browser settings; you'll need to
               allow them there before this will work.
             </p>
           )}

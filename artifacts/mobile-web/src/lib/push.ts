@@ -31,6 +31,18 @@ export function getNotificationPermission(): NotificationPermission | 'unsupport
   return Notification.permission;
 }
 
+export async function getPushSubscriptionState(userId: string) {
+  const permission = getNotificationPermission();
+  if (!isPushSupported()) return { permission, hasBrowserSubscription: false, isSubscribed: false };
+  const registration = await navigator.serviceWorker.getRegistration();
+  const subscription = await registration?.pushManager.getSubscription();
+  if (!subscription) return { permission, hasBrowserSubscription: false, isSubscribed: false };
+  const { data, error } = await supabase.from('push_subscriptions').select('id')
+    .eq('user_id', userId).eq('endpoint', subscription.endpoint).maybeSingle();
+  if (error) throw new Error('Could not check notification registration. Try again.');
+  return { permission, hasBrowserSubscription: true, isSubscribed: permission === 'granted' && Boolean(data) };
+}
+
 /**
  * Registers the service worker (idempotent — safe to call more than once),
  * requests notification permission, subscribes to push, and upserts the
@@ -42,18 +54,18 @@ export async function subscribeToPush(userId: string): Promise<{ error: string |
     return { error: 'Push notifications are not supported in this browser.' };
   }
   if (!VAPID_PUBLIC_KEY) {
-    return { error: 'Missing VITE_VAPID_PUBLIC_KEY — check your .env file.' };
+    return { error: 'Push notifications are not configured for this app yet.' };
   }
 
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js');
-    await navigator.serviceWorker.ready;
-
+    // Ask during the button gesture, before awaiting worker registration (required on some devices).
     const permission = await Notification.requestPermission();
     if (permission !== 'granted') {
       return { error: 'Notification permission was not granted.' };
     }
 
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    await navigator.serviceWorker.ready;
     const existing = await registration.pushManager.getSubscription();
     const subscription =
       existing ??
@@ -86,7 +98,7 @@ export async function subscribeToPush(userId: string): Promise<{ error: string |
 }
 
 /** Unsubscribes this device and removes its row from push_subscriptions. */
-export async function unsubscribeFromPush(): Promise<{ error: string | null }> {
+export async function unsubscribeFromPush(userId: string): Promise<{ error: string | null }> {
   if (!isPushSupported()) return { error: null };
 
   try {
@@ -95,9 +107,10 @@ export async function unsubscribeFromPush(): Promise<{ error: string | null }> {
     if (!subscription) return { error: null };
 
     const endpoint = subscription.endpoint;
-    await subscription.unsubscribe();
+    const removed = await subscription.unsubscribe();
+    if (!removed) return { error: 'This browser could not turn notifications off. Try again.' };
 
-    const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
+    const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint).eq('user_id', userId);
     if (error) return { error: error.message };
     return { error: null };
   } catch (err) {
