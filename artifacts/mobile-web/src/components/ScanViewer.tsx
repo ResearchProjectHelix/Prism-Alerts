@@ -76,10 +76,12 @@ export function ScanViewer({ doc, onClose, patientLabel }: { doc: ScanWithUrl; o
         onClick={(e) => e.stopPropagation()}
       >
         {!doc.fileUrl && (
-          <span style={{ color: colors.mutedForeground }}>
-            {doc.fileState === 'no_file'
+          <span role={doc.fileState === 'loading' ? 'status' : doc.fileState === 'unavailable' ? 'alert' : undefined} style={{ color: colors.mutedForeground }}>
+            {doc.fileState === 'loading'
+              ? 'Loading file…'
+              : doc.fileState === 'no_file'
               ? 'This record has no file attached. It does not provide a viewable scan.'
-              : 'The file is currently unavailable. Close this viewer and use Refresh files to request a new link.'}
+              : 'The file is currently unavailable. Close this viewer and try opening it again.'}
           </span>
         )}
         {doc.fileUrl && isPdf(doc) && (

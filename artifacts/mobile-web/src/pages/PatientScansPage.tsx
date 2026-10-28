@@ -1,8 +1,8 @@
 import { usePatientIdentity } from '../hooks/usePatientIdentity';
 import { PatientIdentity } from '../components/PatientIdentity';
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useDocuments, type ScanWithUrl } from '../hooks/useDocuments';
+import { useDocuments, resolveScanFile, type ScanWithUrl } from '../hooks/useDocuments';
 import { PatientTabs } from '../components/PatientTabs';
 import { ScanViewer } from '../components/ScanViewer';
 import { colors } from '../lib/colors';
@@ -14,6 +14,19 @@ export function PatientScansPage() {
   const hasIdentity = !!identity && !identityError;
   const { data: scans, isLoading, isFetching, error, refetch } = useDocuments(id ?? '');
   const [viewing, setViewing] = useState<ScanWithUrl | null>(null);
+  const selectionVersion = useRef(0);
+  useEffect(() => {
+    selectionVersion.current += 1;
+    setViewing(null);
+    return () => { selectionVersion.current += 1; };
+  }, [id]);
+  const closeViewer = useCallback(() => { selectionVersion.current += 1; setViewing(null); }, []);
+  const openScan = async (scan: ScanWithUrl) => {
+    const version = ++selectionVersion.current;
+    setViewing({ ...scan, fileUrl: null, fileState: scan.file_path ? 'loading' : 'no_file' });
+    const resolved = await resolveScanFile(scan);
+    if (version === selectionVersion.current) setViewing(resolved);
+  };
 
   return (
     <div className="connect-page" style={{ minHeight: '100dvh', backgroundColor: colors.background, color: colors.foreground }}>
@@ -52,7 +65,7 @@ export function PatientScansPage() {
             <button
               className="connect-scan-row"
               key={scan.id}
-              onClick={() => setViewing(scan)}
+              onClick={() => void openScan(scan)}
               style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -75,15 +88,15 @@ export function PatientScansPage() {
                   {scan.clinician ? ` \u00b7 ${scan.clinician}` : ''}
                 </div>
               </div>
-              <span style={{ color: scan.fileState === 'ready' ? colors.primary : colors.mutedForeground, fontSize: 13, flexShrink: 0 }}>
-                {scan.fileState === 'ready' ? 'View →' : scan.fileState === 'no_file' ? 'No file attached' : 'File unavailable'}
+              <span style={{ color: scan.file_path ? colors.primary : colors.mutedForeground, fontSize: 13, flexShrink: 0 }}>
+                {scan.fileState === 'no_file' ? 'No file attached' : 'Open file →'}
               </span>
             </button>
           ))}
         </div>
       )}
 
-      {viewing && viewing.patient_id === id && <ScanViewer patientLabel={`${identity!.name} · ${identity!.mrn || 'MRN not recorded'}`} doc={viewing} onClose={() => setViewing(null)} />}
+      {viewing && viewing.patient_id === id && <ScanViewer patientLabel={`${identity!.name} · ${identity!.mrn || 'MRN not recorded'}`} doc={viewing} onClose={closeViewer} />}
       </>}
     </div>
   );
