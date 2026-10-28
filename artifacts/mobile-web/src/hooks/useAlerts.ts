@@ -41,11 +41,13 @@ async function fetchAlerts(userId: string): Promise<Alert[]> {
     supabase
       .from('blood_tests')
       .select('id, patient_id, test, value, flag, unit, reference_range, recorded_at')
-      .in('patient_id', patientIds),
+      .in('patient_id', patientIds)
+      .order('recorded_at', { ascending: false }),
     supabase
       .from('reports')
       .select('id, patient_id, type, date, status, document_id')
-      .in('patient_id', patientIds),
+      .in('patient_id', patientIds)
+      .order('date', { ascending: false }),
     supabase
       .from('timeline_events')
       .select('id, patient_id, label, event_date, done, status, clinician, notes, sort_order')
