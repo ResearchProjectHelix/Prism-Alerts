@@ -1,3 +1,5 @@
+import { useAuth } from '../context/AuthContext';
+import { readAllPages } from '../lib/queryPaging';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import type { BloodResultGroup, BloodTest } from '../lib/types';
@@ -38,21 +40,18 @@ function groupByTest(bloods: BloodTest[]): BloodResultGroup[] {
 }
 
 async function fetchBloodResults(patientId: string): Promise<BloodResultGroup[]> {
-  const { data, error } = await supabase
-    .from('blood_tests')
-    .select('id, patient_id, test, value, flag, unit, reference_range, recorded_at')
-    .eq('patient_id', patientId)
-    .order('recorded_at', { ascending: false });
-
-  if (error) throw error;
-  return groupByTest(data ?? []);
+  const rows = await readAllPages<BloodTest>((from, to) => supabase
+    .from('blood_tests').select('id, patient_id, test, value, flag, unit, reference_range, recorded_at')
+    .eq('patient_id', patientId).order('recorded_at', { ascending: false }).order('id').range(from, to));
+  return groupByTest(rows);
 }
 
 export function useBloodResults(patientId: string) {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ['blood-results', patientId],
+    queryKey: ['blood-results', patientId, user?.id],
     queryFn: () => fetchBloodResults(patientId),
-    enabled: !!patientId,
+    enabled: !!patientId && !!user,
     staleTime: 20_000,
   });
 }

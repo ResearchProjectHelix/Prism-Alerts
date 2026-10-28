@@ -10,7 +10,7 @@ function isImage(doc: ScanWithUrl): boolean {
   return /\.(png|jpe?g|gif|webp)$/i.test(doc.file_name ?? '');
 }
 
-export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => void }) {
+export function ScanViewer({ doc, onClose, patientLabel }: { doc: ScanWithUrl; onClose: () => void; patientLabel?: string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
@@ -21,7 +21,7 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
     return () => { modal?.close(); previousFocus?.focus(); };
   }, [onClose]);
   return (
-    <dialog ref={dialog} className="scan-viewer-dialog" role="dialog" aria-label={doc.name}
+    <dialog ref={dialog} className="scan-viewer-dialog" role="dialog" aria-label={patientLabel ? `${patientLabel} — ${doc.name}` : doc.name}
       onCancel={(event) => { event.preventDefault(); onClose(); }}
       style={{
         position: 'fixed',
@@ -45,6 +45,7 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
         onClick={(e) => e.stopPropagation()}
       >
         <div style={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+          {patientLabel && <div style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 4 }}>{patientLabel}</div>}
           <div style={{ color: colors.foreground, fontWeight: 600, fontSize: 14 }}>
             {doc.name}
           </div>

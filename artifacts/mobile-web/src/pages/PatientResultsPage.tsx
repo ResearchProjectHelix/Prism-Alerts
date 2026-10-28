@@ -1,3 +1,5 @@
+import { usePatientIdentity } from '../hooks/usePatientIdentity';
+import { PatientIdentity } from '../components/PatientIdentity';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useBloodResults } from '../hooks/useBloodResults';
@@ -7,6 +9,8 @@ import { colors } from '../lib/colors';
 export function PatientResultsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { data: identity, isLoading: identityLoading, error: identityError, refetch: retryIdentity } = usePatientIdentity(id ?? '');
+  const hasIdentity = !!identity && !identityError;
   const { data: groups, isLoading, error } = useBloodResults(id ?? '');
   const [expanded, setExpanded] = useState<string | null>(null);
 
@@ -19,11 +23,13 @@ export function PatientResultsPage() {
         >
           &larr; Overview
         </button>
+        <PatientIdentity patient={identity} loading={identityLoading} error={!!identityError} onRetry={() => void retryIdentity()} />
         <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Blood Results</div>
       </header>
 
       {id && <PatientTabs patientId={id} />}
 
+      {hasIdentity && <>
       {isLoading && <div style={{ padding: 40, textAlign: 'center', color: colors.mutedForeground }}>Loading…</div>}
       {error && (
         <div style={{ padding: 40, textAlign: 'center', color: colors.destructive }}>
@@ -115,7 +121,7 @@ export function PatientResultsPage() {
                         </span>
                         <span style={{ color: entry.flag ? colors.destructive : colors.mutedForeground }}>
                           {entry.value}
-                          {group.unit ? ` ${group.unit}` : ''}
+                          {entry.unit ? ` ${entry.unit}` : ''}
                         </span>
                       </div>
                     ))}
@@ -126,6 +132,7 @@ export function PatientResultsPage() {
           })}
         </div>
       )}
+      </>}
     </div>
   );
 }

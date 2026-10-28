@@ -1,3 +1,5 @@
+import { usePatientIdentity } from '../hooks/usePatientIdentity';
+import { PatientIdentity } from '../components/PatientIdentity';
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDocuments, type ScanWithUrl } from '../hooks/useDocuments';
@@ -8,6 +10,8 @@ import { colors } from '../lib/colors';
 export function PatientScansPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { data: identity, isLoading: identityLoading, error: identityError, refetch: retryIdentity } = usePatientIdentity(id ?? '');
+  const hasIdentity = !!identity && !identityError;
   const { data: scans, isLoading, isFetching, error, refetch } = useDocuments(id ?? '');
   const [viewing, setViewing] = useState<ScanWithUrl | null>(null);
 
@@ -20,6 +24,7 @@ export function PatientScansPage() {
         >
           &larr; Overview
         </button>
+        <PatientIdentity patient={identity} loading={identityLoading} error={!!identityError} onRetry={() => void retryIdentity()} />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 12, justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ fontSize: 18, fontWeight: 700, marginTop: 8 }}>Scans</div>
           <button className="btn btn-ghost" disabled={isFetching} onClick={() => void refetch()} style={{ width: 'auto', paddingInline: 14 }}>Refresh files</button>
@@ -28,6 +33,7 @@ export function PatientScansPage() {
 
       {id && <PatientTabs patientId={id} />}
 
+      {hasIdentity && <>
       {isLoading && <div style={{ padding: 40, textAlign: 'center', color: colors.mutedForeground }}>Loading…</div>}
       {error && (
         <div style={{ padding: 40, textAlign: 'center', color: colors.destructive }}>
@@ -77,7 +83,8 @@ export function PatientScansPage() {
         </div>
       )}
 
-      {viewing && <ScanViewer doc={viewing} onClose={() => setViewing(null)} />}
+      {viewing && viewing.patient_id === id && <ScanViewer patientLabel={`${identity!.name} · ${identity!.mrn || 'MRN not recorded'}`} doc={viewing} onClose={() => setViewing(null)} />}
+      </>}
     </div>
   );
 }
