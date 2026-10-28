@@ -11,22 +11,25 @@ function isImage(doc: ScanWithUrl): boolean {
 }
 
 export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => void }) {
+  const dialog = useRef<HTMLDialogElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     const previousFocus = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const modal = dialog.current;
+    if (modal && !modal.open) modal.showModal();
     closeButton.current?.focus();
-    const handleKey = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); onClose(); } };
-    document.addEventListener('keydown', handleKey);
-    return () => { document.removeEventListener('keydown', handleKey); previousFocus?.focus(); };
+    return () => { modal?.close(); previousFocus?.focus(); };
   }, [onClose]);
   return (
-    <div role="dialog" aria-modal="true" aria-label={doc.name}
+    <dialog ref={dialog} className="scan-viewer-dialog" role="dialog" aria-label={doc.name}
+      onCancel={(event) => { event.preventDefault(); onClose(); }}
       style={{
         position: 'fixed',
+        margin: 0, padding: 0, border: 0,
+        width: '100vw', height: '100dvh', maxWidth: 'none', maxHeight: 'none',
         inset: 0,
         backgroundColor: '#000000cc',
         zIndex: 50,
-        display: 'flex',
         flexDirection: 'column',
       }}
       onClick={onClose}
@@ -101,6 +104,6 @@ export function ScanViewer({ doc, onClose }: { doc: ScanWithUrl; onClose: () => 
           </div>
         )}
       </div>
-    </div>
+    </dialog>
   );
 }

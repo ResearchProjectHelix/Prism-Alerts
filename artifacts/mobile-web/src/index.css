@@ -646,3 +646,7 @@ img {
 @media (min-width: 1200px) {
   .connect-page { box-shadow: 0 0 48px rgba(0, 0, 0, .16); }
 }
+
+/* Native modal behaviour keeps keyboard focus out of the patient page. */
+.scan-viewer-dialog[open] { display: flex; }
+.scan-viewer-dialog::backdrop { background: transparent; }
