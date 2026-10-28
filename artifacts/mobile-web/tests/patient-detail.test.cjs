@@ -6,11 +6,13 @@ const root=path.resolve(__dirname,'..');
 const ts=require(path.join(root,'node_modules/typescript'));
 const source=fs.readFileSync(path.join(root,'src/hooks/usePatientDetail.ts'),'utf8');
 const compiled=ts.transpileModule(source,{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText;
+const paging={exports:{}};vm.runInNewContext(ts.transpileModule(fs.readFileSync(path.join(root,'src/lib/queryPaging.ts'),'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,paging);
 async function run(failingTable){
   const error=new Error('Synthetic query failure: '+failingTable);let evaluated=false;
-  const client={from:table=>{const data=table==='patients'?{id:'synthetic',hospital_id:'sandbox',family_history:null}:table==='user_profiles'?{organization_id:'sandbox'}:[];const response={data,error:table===failingTable?error:null};const chain={select:()=>chain,eq:()=>chain,single:async()=>response,order:async()=>response};return chain;}};
+  const client={from:table=>{const data=table==='patients'?{id:'synthetic',hospital_id:'sandbox',family_history:null}:table==='user_profiles'?{organization_id:'sandbox'}:[];const response={data,error:table===failingTable?error:null};const chain={select:()=>chain,eq:()=>chain,single:async()=>response,order:()=>chain,range:async()=>response};return chain;}};
   const ctx={exports:{},require:name=>{
     if(name==='@tanstack/react-query')return {useQuery:options=>options.queryFn()};
+    if(name.endsWith('/queryPaging'))return paging.exports;
     if(name.endsWith('/supabase'))return {supabase:client};
     if(name.endsWith('/completeness'))return {buildRules:()=>{evaluated=true;return [];}};
     if(name.endsWith('/AuthContext'))return {useAuth:()=>({user:{id:'synthetic-user'}})};

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { buildRules, getUnmetRules } from '../lib/completeness';
+import { readAllPages, readPatientBatches } from '../lib/queryPaging';
+import type { Patient, BloodTest, Report, TimelineEvent } from '../lib/types';
 import type { Alert } from '../lib/types';
 import { useAuth } from '../context/AuthContext';
 
@@ -26,56 +28,42 @@ async function fetchAlerts(userId: string): Promise<Alert[]> {
   // 2. Fetch all patients visible to this user (scoped by RLS)
   //    SCHEMA FIX: the tenant column on `patients` is `hospital_id`, not
   //    `organization_id` — confirmed against Project-Helix's patientQueries.js.
-  const { data: patients, error: pError } = await supabase
-    .from('patients')
-    .select('id, name, mrn, family_history, hospital_id')
-    .order('name');
+  const patients = await readAllPages<Pick<Patient, 'id' | 'name' | 'mrn' | 'family_history' | 'hospital_id'>>((from, to) => supabase
+    .from('patients').select('id, name, mrn, family_history, hospital_id')
+    .order('name').order('id').range(from, to));
+  if (patients.length === 0) return [];
+  const patientIds = patients.map(patient => patient.id);
 
-  if (pError) throw pError;
-  if (!patients || patients.length === 0) return [];
-
-  const patientIds = patients.map((p: { id: string }) => p.id);
-
-  // 3. Batch-fetch all related data
-  const [bloodResult, reportResult, timelineResult] = await Promise.all([
-    supabase
-      .from('blood_tests')
+  // A page failure rejects the entire result: partial records must not become missing-data alerts.
+  const [bloods, reports, timeline] = await Promise.all([
+    readPatientBatches<BloodTest>(patientIds, (ids, from, to) => supabase.from('blood_tests')
       .select('id, patient_id, test, value, flag, unit, reference_range, recorded_at')
-      .in('patient_id', patientIds)
-      .order('recorded_at', { ascending: false }),
-    supabase
-      .from('reports')
+      .in('patient_id', ids).order('recorded_at', { ascending: false }).order('id').range(from, to)),
+    readPatientBatches<Report>(patientIds, (ids, from, to) => supabase.from('reports')
       .select('id, patient_id, type, date, status, document_id')
-      .in('patient_id', patientIds)
-      .order('date', { ascending: false }),
-    supabase
-      .from('timeline_events')
+      .in('patient_id', ids).order('date', { ascending: false }).order('id').range(from, to)),
+    readPatientBatches<TimelineEvent>(patientIds, (ids, from, to) => supabase.from('timeline_events')
       .select('id, patient_id, label, event_date, done, status, clinician, notes, sort_order')
-      .in('patient_id', patientIds)
-      .order('sort_order'),
+      .in('patient_id', ids).order('sort_order').order('id').range(from, to)),
   ]);
-
-  if (bloodResult.error) throw bloodResult.error;
-  if (reportResult.error) throw reportResult.error;
-  if (timelineResult.error) throw timelineResult.error;
 
   const allAlerts: Alert[] = [];
 
   for (const patient of patients) {
-    const bloods = (bloodResult.data ?? []).filter(
+    const patientBloods = bloods.filter(
       (b: { patient_id: string }) => b.patient_id === patient.id,
     );
-    const reports = (reportResult.data ?? []).filter(
+    const patientReports = reports.filter(
       (r: { patient_id: string }) => r.patient_id === patient.id,
     );
-    const timeline = (timelineResult.data ?? []).filter(
+    const patientTimeline = timeline.filter(
       (t: { patient_id: string }) => t.patient_id === patient.id,
     );
 
     const rules = buildRules({
-      bloods,
-      reports,
-      timeline,
+      bloods: patientBloods,
+      reports: patientReports,
+      timeline: patientTimeline,
       familyHistory: patient.family_history ?? null,
     });
 
