@@ -1,3 +1,4 @@
+import { useAuth } from '../context/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '../lib/supabase';
 import { type ClinicalDocument } from '../lib/types';
@@ -39,10 +40,11 @@ async function fetchScans(patientId: string): Promise<ScanWithUrl[]> {
 }
 
 export function useDocuments(patientId: string) {
+  const { user } = useAuth();
   return useQuery({
-    queryKey: ['scans', patientId],
+    queryKey: ['scans', patientId, user?.id],
     queryFn: () => fetchScans(patientId),
-    enabled: !!patientId,
+    enabled: !!patientId && !!user,
     staleTime: 20_000,
   });
 }

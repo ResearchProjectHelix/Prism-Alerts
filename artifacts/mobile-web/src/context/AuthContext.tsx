@@ -1,4 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import type { Session, User } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
 
@@ -23,23 +24,34 @@ const AuthContext = createContext<AuthContextType>({
 });
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const queryClient = useQueryClient();
+  const accountId = useRef<string | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
+    let mounted = true;
+    let authEventReceived = false;
+    const applySession = (next: Session | null) => {
+      if (!mounted) return;
+      const nextAccountId = next?.user.id ?? null;
+      if (nextAccountId !== accountId.current) {
+        queryClient.clear();
+        accountId.current = nextAccountId;
+      }
+      setSession(next);
       setIsLoading(false);
+    };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, next) => {
+      authEventReceived = true;
+      applySession(next);
     });
-
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    // An older initial read must not overwrite a newer sign-in/sign-out event.
+    void supabase.auth.getSession().then(({ data, error }) => {
+      if (!authEventReceived) applySession(error ? null : data.session);
+    }).catch(() => { if (!authEventReceived) applySession(null); });
+    return () => { mounted = false; subscription.unsubscribe(); };
+  }, [queryClient]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -75,7 +87,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     <AuthContext.Provider
       value={{ session, user: session?.user ?? null, isLoading, signIn, signOut, previewDesktopLogin, approveDesktopLogin }}
     >
-      {children}
+      <React.Fragment key={session?.user.id ?? "signed-out"}>{children}</React.Fragment>
     </AuthContext.Provider>
   );
 }
