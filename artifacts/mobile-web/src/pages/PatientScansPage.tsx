@@ -28,7 +28,7 @@ export function PatientScansPage() {
 
       {id && <PatientTabs patientId={id} />}
 
-      {isLoading && <div style={{ padding: 40, textAlign: 'center', color: colors.mutedForeground }}>Loading\u2026</div>}
+      {isLoading && <div style={{ padding: 40, textAlign: 'center', color: colors.mutedForeground }}>Loading…</div>}
       {error && (
         <div style={{ padding: 40, textAlign: 'center', color: colors.destructive }}>
           Couldn't load scans.

@@ -45,7 +45,7 @@ export function AlertsPage() {
         </div>
       </header>
 
-      {isLoading && <CenteredNote>Loading alerts\u2026</CenteredNote>}
+      {isLoading && <CenteredNote>Loading alerts…</CenteredNote>}
       {error && !(error instanceof Error && error.message === 'ACCOUNT_DEACTIVATED') && (
         <CenteredNote isError>Couldn't load alerts. Pull to refresh or try again shortly.</CenteredNote>
       )}

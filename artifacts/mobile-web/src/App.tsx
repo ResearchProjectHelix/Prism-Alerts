@@ -30,7 +30,7 @@ function RequireAuth({ children }: { children: React.ReactNode }) {
           color: colors.mutedForeground,
         }}
       >
-        Loading\u2026
+        Loading…
       </div>
     );
   }
